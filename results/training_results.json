@@ -1,0 +1,13 @@
+{
+  "model": "YOLOv5s",
+  "dataset": "Construction Equipment Detection",
+  "num_images": 3648,
+  "num_classes": 19,
+  "epochs": 50,
+  "image_size": 640,
+  "best_epoch": 23,
+  "mAP_50": 0.5436,
+  "mAP_50_95": 0.3515,
+  "precision": 0.8003,
+  "recall": 0.5519
+}
