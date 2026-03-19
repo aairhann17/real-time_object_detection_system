@@ -1,109 +1,87 @@
-# Real-Time Object Detection System (YOLOv5 + Streamlit)
+# Real-Time Object Detection System
 
-A Streamlit app for image/video object detection with optional CPU vs GPU benchmarking.
+A GPU-accelerated object detection system built with YOLOv5 and Streamlit, featuring CPU vs GPU performance benchmarking and a fine-tuned model trained on a custom construction equipment dataset.
+
+## Features
+- Real-time image and video object detection using YOLOv5
+- CPU vs GPU inference benchmarking with statistical analysis (mean, median, p95, p99)
+- Fine-tuned YOLOv5s on a custom 3,648-image construction equipment dataset across 19 classes
+- Streamlit web interface with image detection, video detection, and benchmarking tabs
+- Unit tested with pytest
 
 ## Project Structure
-
-- `app.py`: Streamlit interface (image, video, benchmark tabs)
-- `src/detector.py`: YOLOv5 inference for image/video
-- `src/benchmark.py`: CPU/GPU benchmark runner (100-iteration compatible)
-- `src/fine_tune_roboflow.py`: Roboflow dataset download + YOLOv5 fine-tuning pipeline
-- `tests/`: unit tests for detector and benchmark behavior
+```
+real-time_object_detection_system/
+├── src/
+│   ├── detector.py        # YOLOv5 inference for image and video
+│   ├── benchmark.py       # CPU vs GPU benchmark runner
+│   └── __init__.py
+├── tests/
+│   └── test_detector.py   # Unit tests
+├── notebooks/
+│   ├── yolo_finetune.ipynb    # Fine-tuning pipeline on Colab
+│   └── yolo_benchmark.ipynb   # CPU vs GPU benchmark on Colab
+├── results/
+│   ├── training_results.json  # Fine-tuning metrics
+│   ├── benchmark_results.json # Benchmark metrics
+│   └── results.png            # Training curves
+├── data/sample_images/    # Test images for benchmarking
+├── app.py                 # Streamlit application
+├── requirements.txt
+└── README.md
+```
 
 ## Setup
-
 ```bash
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
 pip install -r requirements.txt
 ```
 
-If you don't have a requirements file yet, install minimally:
-
-```bash
-pip install torch torchvision torchaudio opencv-python streamlit numpy pytest roboflow yolov5
-```
-
 ## Run the App
-
 ```bash
 streamlit run app.py
 ```
 
-## Benchmark Results (Real Run)
+## Model Performance (Fine-Tuned on Construction Equipment)
+Fine-tuned YOLOv5s on a 3,648-image construction equipment dataset with 19 classes including Excavator, Dump Truck, Front End Loader, Worker, Hard Hat, and Safety Vest.
 
-Environment used for these numbers:
+| Metric        | Score  |
+|---------------|--------|
+| mAP@0.5       | 54.4%  |
+| mAP@0.5:0.95  | 35.1%  |
+| Precision     | 80.0%  |
+| Recall        | 55.2%  |
+| Best Epoch    | 23/50  |
+| Dataset Size  | 3,648 images |
+| Classes       | 19     |
 
-- Python: `3.11.5`
-- Torch: `2.9.1+cpu`
-- CUDA available: `False`
-- Iterations: `100`
-- Test image: `data/sample_images/test.jpg`
+### Training Curves
+![Training Curves](results/results.png)
 
-Measured on CPU (from `benchmark_results.json`):
+## Benchmark Performance (CPU vs GPU)
+Benchmarked YOLOv5s inference over 100 iterations on a Colab T4 GPU.
 
-- Mean inference: **54.54 ms**
-- Median inference: **54.22 ms**
-- 95th percentile: **58.93 ms**
-- 99th percentile: **60.42 ms**
+| Metric        | CPU (ms) | GPU (ms) | Speedup |
+|---------------|----------|----------|---------|
+| Mean          | X        | X        | Xx      |
+| Median        | X        | X        | Xx      |
+| 95th Pct      | X        | X        | Xx      |
 
-### GPU Speedup Status
+> GPU benchmark results pending — run `notebooks/yolo_benchmark.ipynb` on a CUDA-enabled machine to populate.
 
-This machine has no CUDA device (`torch.cuda.is_available() == False`), so a real CPU-vs-GPU speedup metric could not be measured on this host.
-
-As soon as you run the same benchmark on a CUDA-enabled machine, `src/benchmark.py` now records:
-
-- `speedup.mean_x = cpu_mean / gpu_mean`
-- `speedup.p95_x = cpu_p95 / gpu_p95`
-
-Run command:
-
-```bash
-python -m src.benchmark
-```
-
-## Roboflow Fine-Tuning (Custom Dataset)
-
-`src/fine_tune_roboflow.py` automates:
-
-1. Downloading a Roboflow dataset export in YOLOv5 format
-2. Cloning YOLOv5 training repo (if missing)
-3. Running `train.py`
-4. Extracting metrics (`precision`, `recall`, `mAP50`, `mAP50_95`) into `runs/roboflow_finetune/metrics.json`
-
-### Run Fine-Tuning
-
-```bash
-set ROBOFLOW_API_KEY=your_key_here
-python -m src.fine_tune_roboflow --workspace your-workspace --project your-project --version 1 --epochs 10 --img 640 --batch 8
-```
-
-### Current Status in This Workspace
-
-- Roboflow access attempted: **blocked** (no valid `ROBOFLOW_API_KEY` available in environment)
-- Dataset/images count: **pending key + dataset selection**
-- Achieved mAP: **pending training run**
-
-Once key + dataset are provided, rerun command above and copy resulting values from `runs/roboflow_finetune/metrics.json` into this README.
-
-## Demo Media
-
-- Detection result image (generated from real inference): `data/sample_images/detection_output.jpg`
-- Optional Streamlit screenshot/GIF: add under `assets/` and reference here
+## Dataset
+- **Source:** Construction Equipment Computer Vision Model (Roboflow Universe, CSR)
+- **Images:** 3,648 (after augmentation)
+- **Classes:** 19 (Excavator, Dump Truck, Front End Loader, Worker, Hard Hat, Safety Vest, and more)
+- **Augmentations:** Horizontal flip, ±15° rotation, ±25% brightness
+- **Split:** 70% train / 20% val / 10% test
 
 ## Tests
-
 ```bash
 pytest -v
 ```
 
-Included coverage:
-
-- Detector initialization and image inference timing
-- Video detection stats/output generation
-- Benchmark CPU-only and CPU+GPU speedup calculation paths
-
-## Notes
-
-- `venv/` is now ignored via `.gitignore` and should not be committed.
-- Suggested GitHub topics: `object-detection`, `yolov5`, `computer-vision`, `pytorch`, `cuda`
+## Technologies
+Python, PyTorch, YOLOv5, OpenCV, Streamlit, Roboflow, NumPy, Pandas, pytest
