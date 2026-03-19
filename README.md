@@ -65,9 +65,9 @@ Benchmarked YOLOv5s inference over 100 iterations on a Colab T4 GPU.
 
 | Metric        | CPU (ms) | GPU (ms) | Speedup |
 |---------------|----------|----------|---------|
-| Mean          | 54.5%    | X        | Xx      |
-| Median        | 54.2%    | X        | Xx      |
-| 95th Pct      | 58.9%    | X        | Xx      |
+| Mean          | 170.72   | 9.11     | 18.74   |
+| Median        | 158.73   | 8.23     | 19.29   |
+| 95th Pct      | 236.9    | 11.66    | 20.32   |
 
 > GPU benchmark results pending — run `notebooks/yolo_benchmark.ipynb` on a CUDA-enabled machine to populate.
 
